@@ -1,0 +1,10 @@
+// Allow the wheel group to run battctl without an authentication prompt, so
+// the desktop power widget can change the charge limit directly.
+// Only this exact program is matched; battctl validates its own arguments.
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.policykit.exec" &&
+        action.lookup("program") == "/usr/local/bin/battctl" &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});

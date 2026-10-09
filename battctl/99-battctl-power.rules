@@ -1,0 +1,3 @@
+# battctl: re-apply the configured battery charge limit when the AC adapter
+# goes online (the SMC may forget the threshold across power source changes).
+ACTION=="change", SUBSYSTEM=="power_supply", KERNEL=="macsmc-ac", ATTR{online}=="1", ENV{SYSTEMD_WANTS}="battctl.service"

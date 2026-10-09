@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.geoochi.mac-battctl",
+  "name": "Mac Battery Limit",
+  "version": "1.0.0",
+  "author": "geoochi",
+  "license": "MIT",
+  "description": "Battery state and a charge-limit stepper for Apple Silicon MacBooks, backed by the battctl firmware threshold tool.",
+  "repository": "https://github.com/geoochi/omarchy-mac-battctl",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Mac Battery Limit",
+    "description": "Battery state with charge-limit control (battctl)",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

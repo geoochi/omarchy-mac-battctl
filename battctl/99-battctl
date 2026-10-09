@@ -1,0 +1,7 @@
+#!/bin/sh
+# battctl: (re)assert the configured charge limit before and after system
+# sleep, so the limit is in place while the lid is closed. Errors are ignored:
+# if there is nothing to apply, apply is a no-op.
+[ -x /usr/local/bin/battctl ] || exit 0
+/usr/local/bin/battctl apply >/dev/null 2>&1 || true
+exit 0

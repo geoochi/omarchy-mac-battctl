@@ -1,0 +1,12 @@
+[Unit]
+Description=Apply MacBook battery charge limit (battctl)
+ConditionPathExists=/sys/class/power_supply/macsmc-battery/charge_control_end_threshold
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/battctl apply
+Nice=10
+
+[Install]
+WantedBy=multi-user.target
