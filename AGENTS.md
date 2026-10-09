@@ -122,10 +122,16 @@ not that the widget is broken.
 - The running shell logs to `/run/user/1000/quickshell/by-id/<id>/log.qslog`
   (protobuf-ish; use `strings` and grep). Find the live instance via
   `ls -l /proc/$(pgrep -x quickshell | head -1)/fd | grep qslog`.
+- QML edits do **not** hot-reload: Omarchy launches the shell with
+  `QS_DISABLE_FILE_WATCHER=1`, so the Quickshell engine keeps its cached
+  components and neither `rescanPlugins` nor a plugin disable/enable picks up
+  new code. Apply plugin changes with `omarchy-restart-shell` (deliberate
+  restart; the bar blinks for about a second).
 - `omarchy plugin list --json | jq '.[] | select(.id=="io.github.geoochi.mac-battctl")'`
-- Reload after edits: `omarchy-shell shell rescanPlugins` (edits usually hot-reload).
 - Installed plugin directory: `~/.config/omarchy/plugins/io.github.geoochi.mac-battctl/`
-  (a git checkout managed by `omarchy plugin add/update`).
+  (a git checkout managed by `omarchy plugin add/update`; after pushing plugin
+  changes, `omarchy plugin update io.github.geoochi.mac-battctl --yes` then
+  `omarchy-restart-shell`).
 
 ## Commit conventions
 
