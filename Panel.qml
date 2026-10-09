@@ -31,7 +31,13 @@ Panel {
 
   readonly property var device: UPower.displayDevice
   readonly property bool batteryPresent: !!(device && device.isPresent)
-  readonly property int capacity: Math.round(Model.num(device ? device.percentage : 0, 0) * 100)
+  // The firmware's own percentage (SMC BUIC), like btop and macOS show.
+  // UPower recomputes percentage from charge_now/charge_full and disagrees by
+  // several points; the charge limit is enforced against BUIC, so that is the
+  // value every read-out in this panel stays consistent with.
+  readonly property int capacity: root.capacityRaw !== ""
+    ? Math.round(Model.num(root.capacityRaw, 0))
+    : Math.round(Model.num(device ? device.percentage : 0, 0) * 100)
 
   readonly property string powerSupplyRoot: {
     var fromEnv = Quickshell.env("OMARCHY_POWER_SUPPLY_PATH")
@@ -52,6 +58,7 @@ Panel {
   // ---- real charge limit (sysfs + battctl config) ---------------------
 
   property string confText: ""
+  property string capacityRaw: ""
   property string limitEndRaw: ""
   property string limitStartRaw: ""
   property string cyclesRaw: ""
@@ -132,6 +139,7 @@ Panel {
 
   function refreshFiles() {
     confFile.reload()
+    capacityFile.reload()
     limitEndFile.reload()
     limitStartFile.reload()
     cyclesFile.reload()
@@ -190,6 +198,15 @@ Panel {
     printErrors: false
     onLoaded: root.confText = text()
     onLoadFailed: root.confText = ""
+  }
+
+  FileView {
+    id: capacityFile
+    path: root.batteryPath + "/capacity"
+    watchChanges: false
+    printErrors: false
+    onLoaded: root.capacityRaw = text()
+    onLoadFailed: root.capacityRaw = ""
   }
 
   FileView {

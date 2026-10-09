@@ -42,6 +42,12 @@ at the repository root). Extra files next to it are intentional; do not
   `battery:*:*:dmi:* CHARGE_LIMIT=75,80`. That is why both the CLI and the
   widget read sysfs and `/etc/battctl.conf` directly, and why the widget must
   never use UPower for limit display.
+- The percentage read-outs also come from sysfs `capacity` (the firmware's SMC
+  BUIC value, the same number macOS and btop show), not UPower's `percentage`:
+  UPower recomputes that from `charge_now/charge_full` and disagrees with the
+  firmware by several points. The charge limit is enforced against BUIC, so
+  every read-out follows it. UPower remains the source for state, rate, time,
+  cycles and health.
 - `asahi-scripts` ships its own udev/systemd units that persist
   `charge_control_end_threshold` (see `/usr/lib/udev/rules.d/93-macsmc-*`).
   They coexist with battctl; never edit files under `/usr/lib` for this.

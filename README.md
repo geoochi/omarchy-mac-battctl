@@ -88,6 +88,10 @@ cd omarchy-mac-battctl/battctl && sudo ./install.sh uninstall
 - UPower reports charge thresholds from its own hwdb default (75-80%) on
   Apple Silicon rather than the real firmware values, so both `battctl status`
   and the widget read sysfs directly.
+- The percentage shown is the firmware's own value (`capacity` - the same
+  number btop and macOS display). UPower recomputes its percentage from
+  coulomb counts and can show a few points less; the widget follows the
+  firmware because the charge limit is enforced against it.
 - The Asahi `asahi-scripts` package ships its own persistence helpers for
   `charge_control_end_threshold`. They coexist with `battctl`; nothing in
   `/usr/lib` needs to be edited.

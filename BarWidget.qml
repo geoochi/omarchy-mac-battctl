@@ -17,6 +17,7 @@ BarWidget {
   id: root
   moduleName: "io.github.geoochi.mac-battctl"
 
+  property string capacityRaw: ""
   property string limitEndRaw: ""
   property string limitStartRaw: ""
 
@@ -24,7 +25,13 @@ BarWidget {
 
   readonly property var device: UPower.displayDevice
   readonly property bool batteryPresent: !!(device && device.isPresent)
-  readonly property int capacity: Math.round(Model.num(device ? device.percentage : 0, 0) * 100)
+  // The firmware's own percentage (SMC BUIC). UPower recomputes percentage
+  // from charge_now/charge_full instead, which disagrees with the firmware by
+  // several points - and the charge limit is enforced against BUIC, so the
+  // firmware value is the one to show.
+  readonly property int capacity: root.capacityRaw !== ""
+    ? Math.round(Model.num(root.capacityRaw, 0))
+    : Math.round(Model.num(device ? device.percentage : 0, 0) * 100)
   readonly property int limitEnd: Math.round(Model.num(limitEndRaw, 100))
   readonly property int limitStart: Math.round(Model.num(limitStartRaw, 0))
 
@@ -59,8 +66,18 @@ BarWidget {
   readonly property var info: Model.describe(root.snapshot())
 
   function refreshFiles() {
+    capacityFile.reload()
     limitEndFile.reload()
     limitStartFile.reload()
+  }
+
+  FileView {
+    id: capacityFile
+    path: root.batteryPath + "/capacity"
+    watchChanges: false
+    printErrors: false
+    onLoaded: root.capacityRaw = text()
+    onLoadFailed: root.capacityRaw = ""
   }
 
   FileView {
