@@ -21,10 +21,6 @@ Panel {
   property var anchorItem: null
   property var hostWidget: null
 
-  property var profiles: []
-  property string activeProfile: ""
-  property int profileIndex: 0
-  property bool cursorActive: false
   property int phraseIndex: 0
 
   // ---- device ---------------------------------------------------------
@@ -149,38 +145,6 @@ Panel {
   function refresh() {
     if (!batteryPresent) return
     refreshFiles()
-    if (!profilesProc.running) profilesProc.running = true
-  }
-
-  // ---- profiles -------------------------------------------------------
-
-  function selectProfileByDelta(delta) {
-    profileIndex = Model.selectProfileIndex(profileIndex, delta, profiles)
-  }
-
-  function activateSelectedProfile() {
-    if (profileIndex < 0 || profileIndex >= profiles.length) return
-    setProfile(profiles[profileIndex])
-  }
-
-  function updateProfiles(raw) {
-    var parsed = Model.parseProfiles(raw, profileIndex)
-    // Keep the last known profile list across transient empty payloads so the
-    // buttons don't blink out.
-    if (parsed.profiles.length === 0) return
-    profiles = parsed.profiles
-    activeProfile = parsed.activeProfile
-    profileIndex = parsed.profileIndex
-    if (opened && !cursorActive) {
-      var idx = profiles.indexOf(activeProfile)
-      if (idx >= 0) profileIndex = idx
-    }
-  }
-
-  function setProfile(profile) {
-    if (!profile || actionProc.running) return
-    actionProc.command = ["omarchy-powerprofiles-set", root.info.key === "onBattery" ? "battery" : "ac", profile]
-    actionProc.running = true
   }
 
   function switchPanel(direction) {
@@ -267,17 +231,6 @@ Panel {
   }
 
   Process {
-    id: profilesProc
-    command: ["omarchy-powerprofiles-list", "--active-state"]
-    stdout: StdioCollector { waitForEnd: true; onStreamFinished: root.updateProfiles(text) }
-  }
-
-  Process {
-    id: actionProc
-    onExited: root.refresh()
-  }
-
-  Process {
     id: applyProc
     stdout: StdioCollector { id: applyStdout; waitForEnd: true }
     stderr: StdioCollector { id: applyStderr; waitForEnd: true }
@@ -304,9 +257,6 @@ Panel {
         return
       }
       refresh()
-      var idx = profiles.indexOf(activeProfile)
-      profileIndex = idx >= 0 ? idx : 0
-      cursorActive = false
     }
   }
 
@@ -325,12 +275,6 @@ Panel {
     PanelKeyCatcher {
       id: keyCatcher
       anchors.fill: parent
-      onMoveRequested: function(dx, dy) {
-        if (!root.cursorActive) { root.cursorActive = true; return }
-        if (dx !== 0) root.selectProfileByDelta(dx)
-        else if (dy !== 0) root.selectProfileByDelta(dy)
-      }
-      onActivateRequested: if (root.cursorActive) root.activateSelectedProfile()
       onCloseRequested: root.close()
       onTabRequested: function(direction) { root.switchPanel(direction) }
 
@@ -585,58 +529,6 @@ Panel {
           }
         }
 
-        // ---------- Power profile picker ----------
-        PanelSeparator {
-          foreground: root.bar.foreground
-        }
-
-        Column {
-          width: parent.width
-          spacing: Style.space(10)
-
-          PanelSectionHeader {
-            text: "POWER PROFILE"
-            foreground: root.bar.foreground
-            fontFamily: root.bar.fontFamily
-          }
-
-          Row {
-            id: profileRow
-            width: parent.width
-            spacing: Style.space(6)
-
-            readonly property real cellWidth: root.profiles.length > 0
-              ? (width - spacing * (root.profiles.length - 1)) / root.profiles.length
-              : 0
-
-            Repeater {
-              model: root.profiles
-              Button {
-                required property var modelData
-                required property int index
-                width: profileRow.cellWidth
-                iconText: Model.profileIcon(String(modelData))
-                iconSize: Style.font.title
-                text: String(modelData).charAt(0).toUpperCase() + String(modelData).slice(1)
-                fontSize: Style.font.bodySmall
-                foreground: root.bar.foreground
-                fontFamily: root.bar.fontFamily
-                horizontalPadding: Style.spacing.controlPaddingX
-                verticalPadding: Style.spacing.controlPaddingY + Style.space(2)
-                bordered: true
-                active: root.activeProfile === modelData
-                hasCursor: root.cursorActive && root.profileIndex === index
-                onClicked: root.setProfile(modelData)
-                onHovered: function(h) {
-                  if (h) {
-                    root.cursorActive = true
-                    root.profileIndex = index
-                  }
-                }
-              }
-            }
-          }
-        }
       }
     }
   }

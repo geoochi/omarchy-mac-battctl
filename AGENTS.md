@@ -60,7 +60,7 @@ at the repository root). Extra files next to it are intentional; do not
 ```
 manifest.json        plugin manifest (root = plugin root, required for publishing)
 BarWidget.qml        bar entry: button + panel Loader + IPC + settings toggle
-Panel.qml            details panel: stats, charge-limit stepper, power profiles
+Panel.qml            details panel: stats, charge-limit stepper
 Model.js             pure logic (state machine, parsers, formatting) - node-testable
 battctl/             the C backend and its installer
   battctl.c          CLI: status | set N | off | apply | detect

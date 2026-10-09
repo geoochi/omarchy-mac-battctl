@@ -61,7 +61,7 @@ Or click the battery in the bar and use the **CHARGE LIMIT** stepper.
 - left click: open the details panel
 - right click: toggle the percentage label
 - panel: live state, capacity, cycles, health, rate, temperature, the limit
-  the firmware is holding, the limit stepper, and power profiles
+  the firmware is holding, and the limit stepper
 
 ## Firmware modes
 
