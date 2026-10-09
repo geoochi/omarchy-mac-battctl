@@ -121,6 +121,21 @@ not that the widget is broken.
 - Installed plugin directory: `~/.config/omarchy/plugins/io.github.geoochi.mac-battctl/`
   (a git checkout managed by `omarchy plugin add/update`).
 
+## Commit conventions
+
+Every commit that changes this repository carries a co-author trailer for the
+AI agent that worked on it:
+
+```
+Co-Authored-By: CodeBuddy Code <codebuddy@example.com>
+```
+
+Use `git commit -m "<subject>" -m "Co-Authored-By: CodeBuddy Code <codebuddy@example.com>"`.
+A reserved example.com address is intentional: a `users.noreply.github.com`
+address would be linked to the real GitHub account that owns that username.
+Never amend or force-push published history to add a missed trailer; the
+marketplace binds its validation and security baseline to exact commit SHAs.
+
 ## Gotchas
 
 - `battctl set` writes sysfs **and** `/etc/battctl.conf`; keep them in sync
